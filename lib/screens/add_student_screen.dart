@@ -1,9 +1,13 @@
+// ignore_for_file: use_build_context_synchronously
+
 import 'dart:io';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:elevate_reg_app_2/models/school.dart';
+import 'package:elevate_reg_app_2/models/subjects.dart';
 import 'package:elevate_reg_app_2/screens/select_type_screen.dart';
 import 'package:elevate_reg_app_2/utils/alert.dart';
+import 'package:elevate_reg_app_2/utils/colors.dart';
 import 'package:elevate_reg_app_2/utils/my_padding.dart';
 import 'package:elevate_reg_app_2/widgets/image_picker_box.dart';
 import 'package:elevate_reg_app_2/widgets/my_dropdown.dart';
@@ -24,8 +28,9 @@ class _AddStudentState extends State<AddStudentScreen> {
   String? imagePath;
   File? pickedImage;
   var _isButtonLoading = false;
-  final _auth = FirebaseAuth.instance;
+  final auth = FirebaseAuth.instance;
   final _storage = FirebaseStorage.instance;
+  List<SubjectModel> studentSubjects = [];
 
   final lastNameController = TextEditingController();
   final otherNamesController = TextEditingController();
@@ -42,6 +47,15 @@ class _AddStudentState extends State<AddStudentScreen> {
   void getFile(File selectedImage) {
     setState(() {
       pickedImage = selectedImage;
+    });
+  }
+
+  void onDeleteClass(String id) {
+    final subjectMap =
+        studentSubjects.firstWhere((element) => element.id == id);
+
+    setState(() {
+      studentSubjects.remove(subjectMap);
     });
   }
 
@@ -106,6 +120,119 @@ class _AddStudentState extends State<AddStudentScreen> {
         _isButtonLoading = false;
       });
     }
+  }
+
+  Future addSubjectDialog() async {
+    SubjectModel? subject;
+    final formKey = GlobalKey<FormState>();
+    return showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext ctx) {
+        final subjectNameList = subjects.map((e) => e.name).toList();
+        subjectNameList.sort();
+        return Dialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(15),
+          ),
+          elevation: 30,
+          child: Form(
+            key: formKey,
+            child: Padding(
+              padding: const EdgeInsets.symmetric(
+                vertical: 40,
+                horizontal: 15,
+              ),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Center(
+                    child: Text(
+                      'Select Subject',
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 17,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(
+                    height: 20,
+                  ),
+                  const Text(
+                    "Select Subject",
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 13,
+                      color: MyColors.primayGreen,
+                    ),
+                  ),
+                  const SizedBox(
+                    height: 10,
+                  ),
+                  MyDropDown(
+                    items: subjectNameList
+                        .map(
+                          (e) => DropdownMenuItem<String>(
+                              value: e,
+                              child: Text(
+                                e,
+                                style: const TextStyle(
+                                  color: Colors.black,
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 16,
+                                ),
+                              )),
+                        )
+                        .toList(),
+                    onChanged: (value) {
+                      subject = subjects.firstWhere(
+                          (element) => element.name == value.toString());
+                    },
+                    hint: const Text('Select subject'),
+                    validator: (val) {
+                      if (val == null || val.toString().isEmpty) {
+                        return 'This field is mandatory';
+                      } else if (studentSubjects.contains(subject!)) {
+                        return 'This subject has already been added';
+                      }
+                      return null;
+                    },
+                  ),
+                  const SizedBox(
+                    height: 20,
+                  ),
+                  SubmitButton(
+                    isLoading: false,
+                    text: 'Cancel',
+                    onPressed: () {
+                      Navigator.of(ctx).pop();
+                    },
+                    color: Colors.red,
+                  ),
+                  const SizedBox(
+                    height: 10,
+                  ),
+                  SubmitButton(
+                    isLoading: false,
+                    text: 'Add',
+                    onPressed: () {
+                      final isValid = formKey.currentState!.validate();
+                      if (isValid) {
+                        setState(() {
+                          studentSubjects.add(subject!);
+                        });
+                        Navigator.of(ctx).pop();
+                      }
+                    },
+                  ),
+                ],
+              ),
+            ),
+          ),
+        );
+      },
+    );
   }
 
   @override
@@ -327,6 +454,38 @@ class _AddStudentState extends State<AddStudentScreen> {
                         return null;
                       },
                     ),
+                    const SizedBox(
+                      height: 20,
+                    ),
+                    const TextFieldTitle(title: 'Add Subjects'),
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                          vertical: 10, horizontal: 10),
+                      margin: const EdgeInsets.only(bottom: 15),
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(10),
+                        border: Border.all(
+                          color: MyColors.primayGreen,
+                        ),
+                      ),
+                      child: Wrap(
+                        alignment: WrapAlignment.start,
+                        runAlignment: WrapAlignment.spaceEvenly,
+                        children: studentSubjects
+                            .map((e) => OnlySubjectContainer(
+                                  subject: e,
+                                  onDelete: onDeleteClass,
+                                ))
+                            .toList(),
+                      ),
+                    ),
+                    TextButton(
+                      onPressed: () async {
+                        FocusScope.of(context).unfocus();
+                        await addSubjectDialog();
+                      },
+                      child: const Text('Add Subject & Class'),
+                    ),
                   ],
                 ),
               ),
@@ -368,3 +527,94 @@ class TextFieldTitle extends StatelessWidget {
     ]);
   }
 }
+
+class OnlySubjectContainer extends StatelessWidget {
+  final SubjectModel subject;
+  final Function onDelete;
+  const OnlySubjectContainer({
+    required this.subject,
+    required this.onDelete,
+    super.key,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(
+        horizontal: 10,
+      ),
+      margin: const EdgeInsets.all(5),
+      decoration: BoxDecoration(
+          border: Border.all(
+            color: Colors.grey,
+          ),
+          borderRadius: BorderRadius.circular(10)),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                subject.name,
+                style: const TextStyle(
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(
+            width: 15,
+          ),
+          IconButton(
+            onPressed: () {
+              onDelete(subject.id);
+            },
+            icon: const Icon(
+              Icons.cancel_outlined,
+              color: Colors.red,
+            ),
+          )
+        ],
+      ),
+    );
+  }
+}
+
+List<SubjectModel> subjects = [
+  SubjectModel(id: '2FBHZ33VrR1B2f9MV1O7', name: 'History'),
+  SubjectModel(id: '3jMRkuXbI7jCOolCs5XY', name: 'English Language'),
+  SubjectModel(id: '55Guz8BtNlf9KlTifBpG', name: 'CRS'),
+  SubjectModel(id: '60oznoYCV1mlKYDh0MYV', name: 'Igbo'),
+  SubjectModel(id: '848ClkhrevINYat6sNZ3', name: 'Visual Art'),
+  SubjectModel(id: '8EhqiYFlnoJDhdt3U6Sr', name: 'Woodwork'),
+  SubjectModel(id: 'CqyBRQOSjgsibBaRK8Vy', name: 'Social Studies'),
+  SubjectModel(id: 'EeIW8uViyo7WgRVgBKfW', name: 'Financial Accounting'),
+  SubjectModel(id: 'GlmpfCSWRgQBTns9jQ0P', name: 'Hausa'),
+  SubjectModel(id: 'GsGC9junUl3vCG5wmdEp', name: 'Yoruba'),
+  SubjectModel(id: 'HfxrvnIf55D6rSy8c9E8', name: 'Computer Science'),
+  SubjectModel(id: 'Hv5vqYpMHDQowXKQF79m', name: 'Commerce'),
+  SubjectModel(id: 'P9yGujnIqabWGNHTyLRI', name: 'French'),
+  SubjectModel(id: 'PRsTgCiX3XjkS9pvcCJa', name: 'Music'),
+  SubjectModel(id: 'QzAUkpJVJOif1cBM5aWs', name: 'Creative & Cultural Arts'),
+  SubjectModel(id: 'S8g0EVILN7FNXo82wGJ5', name: 'Basic Tech/ Intotech'),
+  SubjectModel(id: 'U2eXDE0EUDt2BNYPNBG0', name: 'Government'),
+  SubjectModel(id: 'UpEq6l95YlfLABLhf91E', name: 'Agricultural Science'),
+  SubjectModel(id: 'W84Kkxym8nrGJFI73W25', name: 'Further Mathematics'),
+  SubjectModel(id: 'YldABhSvh6pue50HEmvW', name: 'Literature In English'),
+  SubjectModel(id: 'ZXPuQK1d136CMV7Ke1R2', name: 'Mathematics'),
+  SubjectModel(id: 'edcFN7VutiT2lTRpNHb9', name: 'Chemistry'),
+  SubjectModel(id: 'h6PcTwSyhXrgGJYnWM64', name: 'Typewriting'),
+  SubjectModel(id: 'lQOy2mq48LoaLGTxge5t', name: 'Physical Education'),
+  SubjectModel(id: 'm8arUeRB9P0GF0GvMehO', name: 'Home Management'),
+  SubjectModel(id: 'n0KUhRQwxNzwoBsx8di2', name: 'Physical & Health Education'),
+  SubjectModel(id: 'oJwvWPoLeL68HfvpD5sW', name: 'Physics'),
+  SubjectModel(id: 'oVHQknkZpbpKL6jTdm2M', name: 'Home Economics'),
+  SubjectModel(id: 'ogxpD9x45sBUgmc49XJM', name: 'Civic Education'),
+  SubjectModel(id: 'pg3BrkoQBhOnYEheoIhS', name: 'Foods & Nutrition'),
+  SubjectModel(id: 'qZT58Enre6kFlyfziBE7', name: 'Geography'),
+  SubjectModel(id: 'rY0kZXtcMj905DllrT6G', name: 'Economics'),
+  SubjectModel(id: 'wKlJaT1sZk4vspU2s6nU', name: 'Business Studies'),
+  SubjectModel(id: 'x3WxJ9eLOeYRo9LDxLgX', name: 'Biology'),
+  SubjectModel(id: 'yfexqkiOjWbe0jKeOBjV', name: 'Technical Drawing'),
+];
