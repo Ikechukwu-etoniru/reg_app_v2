@@ -581,9 +581,14 @@ class OnlySubjectContainer extends StatelessWidget {
   }
 }
 
+
+// SubjectModel(id: '', name: ''),
 List<SubjectModel> subjects = [
+  SubjectModel(id: '0GysCkcOWkZihrZwArTR', name: 'Reading'),
+  SubjectModel(id: '1EYUCQ5fUxmePArfU6n2', name: 'Efik'),
   SubjectModel(id: '2FBHZ33VrR1B2f9MV1O7', name: 'History'),
   SubjectModel(id: '3jMRkuXbI7jCOolCs5XY', name: 'English Language'),
+  SubjectModel(id: '4AuA2igObQPxQZByZIfT', name: 'Tourism'),
   SubjectModel(id: '55Guz8BtNlf9KlTifBpG', name: 'CRS'),
   SubjectModel(id: '60oznoYCV1mlKYDh0MYV', name: 'Igbo'),
   SubjectModel(id: '848ClkhrevINYat6sNZ3', name: 'Visual Art'),
@@ -596,15 +601,23 @@ List<SubjectModel> subjects = [
   SubjectModel(id: 'Hv5vqYpMHDQowXKQF79m', name: 'Commerce'),
   SubjectModel(id: 'P9yGujnIqabWGNHTyLRI', name: 'French'),
   SubjectModel(id: 'PRsTgCiX3XjkS9pvcCJa', name: 'Music'),
+  SubjectModel(id: 'PwKDgbyM6d9Fz7iU4sTW', name: 'Basic Science'),
+  SubjectModel(id: 'Q3gEtV4GN4FTrgST72E8', name: 'Data Processing'),
   SubjectModel(id: 'QzAUkpJVJOif1cBM5aWs', name: 'Creative & Cultural Arts'),
   SubjectModel(id: 'S8g0EVILN7FNXo82wGJ5', name: 'Basic Tech/ Intotech'),
   SubjectModel(id: 'U2eXDE0EUDt2BNYPNBG0', name: 'Government'),
   SubjectModel(id: 'UpEq6l95YlfLABLhf91E', name: 'Agricultural Science'),
+  SubjectModel(id: 'UwXVaVfDczCHk15Jh588', name: 'B.C.E'),
   SubjectModel(id: 'W84Kkxym8nrGJFI73W25', name: 'Further Mathematics'),
+  SubjectModel(id: 'XI5BU91w5Xdiu73UB1Dm', name: 'National Values'),
   SubjectModel(id: 'YldABhSvh6pue50HEmvW', name: 'Literature In English'),
   SubjectModel(id: 'ZXPuQK1d136CMV7Ke1R2', name: 'Mathematics'),
   SubjectModel(id: 'edcFN7VutiT2lTRpNHb9', name: 'Chemistry'),
+  SubjectModel(id: 'fg7ogwovmrPS89HcUZuU', name: 'Catering Craft Practice (CCP)'),
+  SubjectModel(id: 'g7vs6V6kxQo389xHmae5', name: 'BK'),
+  SubjectModel(id: 'ghzPwbeFpHpUZolToTrs', name: 'Marketing'),
   SubjectModel(id: 'h6PcTwSyhXrgGJYnWM64', name: 'Typewriting'),
+  SubjectModel(id: 'ipvmNBMc4EPeR6Qx8FmN', name: 'Animal Husbandry'),
   SubjectModel(id: 'lQOy2mq48LoaLGTxge5t', name: 'Physical Education'),
   SubjectModel(id: 'm8arUeRB9P0GF0GvMehO', name: 'Home Management'),
   SubjectModel(id: 'n0KUhRQwxNzwoBsx8di2', name: 'Physical & Health Education'),
@@ -618,3 +631,5 @@ List<SubjectModel> subjects = [
   SubjectModel(id: 'x3WxJ9eLOeYRo9LDxLgX', name: 'Biology'),
   SubjectModel(id: 'yfexqkiOjWbe0jKeOBjV', name: 'Technical Drawing'),
 ];
+
+
