@@ -19,3 +19,26 @@ class SubjectModel {
     required this.name,
   });
 }
+
+class SubjectClass {
+  int classNum;
+  int classId;
+  String subject;
+  final String name;
+
+  SubjectClass({
+    required this.classNum,
+    required this.classId,
+    required this.subject,
+    required this.name,
+  });
+
+   // Convert SubjectClass instance to a map
+  Map<String, dynamic> toMap() {
+    return {
+      'class_num': classNum,
+      'class': classId,
+      'subject': subject,
+    };
+  }
+}

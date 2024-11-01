@@ -3,10 +3,9 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:elevate_reg_app_2/models/school.dart';
 import 'package:elevate_reg_app_2/models/student.dart';
-import 'package:elevate_reg_app_2/screens/add_student_screen.dart';
 import 'package:elevate_reg_app_2/utils/alert.dart';
 import 'package:elevate_reg_app_2/utils/my_padding.dart';
-import 'package:elevate_reg_app_2/widgets/my_dropdown.dart';
+import 'package:elevate_reg_app_2/widgets/add_student_widgets.dart';
 import 'package:elevate_reg_app_2/widgets/submit_button.dart';
 import 'package:flutter/material.dart';
 

@@ -2,6 +2,7 @@ import 'package:elevate_reg_app_2/models/school.dart';
 import 'package:elevate_reg_app_2/screens/add_parents_subscription_screen.dart';
 import 'package:elevate_reg_app_2/screens/add_student_screen.dart';
 import 'package:elevate_reg_app_2/screens/add_teacher_screen.dart';
+import 'package:elevate_reg_app_2/screens/update_some_students_screen.dart';
 import 'package:elevate_reg_app_2/utils/colors.dart';
 import 'package:elevate_reg_app_2/utils/my_padding.dart';
 import 'package:flutter/material.dart';
@@ -69,6 +70,15 @@ class _SelectTypeScreenState extends State<SelectTypeScreen> {
                 Navigator.of(context)
                     .push(MaterialPageRoute(builder: (context) {
                   return AddParentsSubscriptionScreen(school: widget.school);
+                }));
+              },
+            ),
+            SelectTypeContainer(
+              type: 'Update Jss1c students',
+              onPressed: () {
+                Navigator.of(context)
+                    .push(MaterialPageRoute(builder: (context) {
+                  return UpdateSomeStudentsScreen(school: widget.school);
                 }));
               },
             ),

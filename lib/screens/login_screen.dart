@@ -3,7 +3,6 @@
 import 'package:elevate_reg_app_2/screens/pick_school_screen.dart';
 import 'package:elevate_reg_app_2/utils/alert.dart';
 import 'package:elevate_reg_app_2/utils/colors.dart';
-import 'package:elevate_reg_app_2/utils/my_padding.dart';
 import 'package:elevate_reg_app_2/widgets/submit_button.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -24,7 +23,6 @@ class _LoginScreenState extends State<LoginScreen> {
   final _auth = FirebaseAuth.instance;
 
   var _obscurePassword = true;
-  var _checkBoxValue = false;
 
   Future loginUser() async {
     FocusScope.of(context).unfocus();
@@ -204,9 +202,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       validator: (value) {
                         if (value == null || value.isEmpty) {
                           return 'Type a password';
-                        } else if (_passwordController.text.length <= 7) {
-                          return 'Passwords should be at least 8 characters long';
-                        }
+                        } 
                         return null;
                       },
                     ),

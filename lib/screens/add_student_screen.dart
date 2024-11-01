@@ -5,10 +5,12 @@ import 'dart:io';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:elevate_reg_app_2/models/school.dart';
 import 'package:elevate_reg_app_2/models/subjects.dart';
+import 'package:elevate_reg_app_2/screens/add_subject_screen.dart';
 import 'package:elevate_reg_app_2/screens/select_type_screen.dart';
 import 'package:elevate_reg_app_2/utils/alert.dart';
 import 'package:elevate_reg_app_2/utils/colors.dart';
 import 'package:elevate_reg_app_2/utils/my_padding.dart';
+import 'package:elevate_reg_app_2/widgets/add_student_widgets.dart';
 import 'package:elevate_reg_app_2/widgets/image_picker_box.dart';
 import 'package:elevate_reg_app_2/widgets/my_dropdown.dart';
 import 'package:elevate_reg_app_2/widgets/submit_button.dart';
@@ -39,6 +41,7 @@ class _AddStudentState extends State<AddStudentScreen> {
   String? selectedClass;
   String? selectedClassIdentifier;
   final _formKey = GlobalKey<FormState>();
+  int _selectedClassToDetermineSubject = 0;
 
   void getPath(String path) {
     imagePath = path;
@@ -70,6 +73,25 @@ class _AddStudentState extends State<AddStudentScreen> {
       return;
     }
     try {
+      if (_selectedClassToDetermineSubject == 4 ||
+          _selectedClassToDetermineSubject == 5 ||
+          _selectedClassToDetermineSubject == 6) {
+        Navigator.of(context).push(MaterialPageRoute(builder: (context) {
+          return AddSubjectScreen(
+            picFile: pickedImage!,
+            name:
+                '${lastNameController.text.toLowerCase().trim()} ${otherNamesController.text.toLowerCase().trim()}',
+            parentsNumber1: parentsNumberController.text.trim(),
+            parentsNumber2: parentsNumber2Controller.text.trim(),
+            classId: selectedClass!,
+            classIdentifier: selectedClassIdentifier!,
+            selectedClass: _selectedClassToDetermineSubject,
+            school: widget.school,
+          );
+        }));
+        return;
+      }
+
       setState(() {
         _isButtonLoading = true;
       });
@@ -113,6 +135,15 @@ class _AddStudentState extends State<AddStudentScreen> {
       await docRef.update({
         'id': generatedId,
       });
+      Navigator.pushAndRemoveUntil(
+        context,
+        MaterialPageRoute(
+            builder: (context) => SelectTypeScreen(
+                  school: widget.school,
+                )),
+        (Route<dynamic> route) =>
+            route.isFirst, // Keep only the first route (FirstScreen)
+      );
     } catch (error) {
       Alert.errorDialog(context: context, description: 'An error occured');
     } finally {
@@ -122,118 +153,118 @@ class _AddStudentState extends State<AddStudentScreen> {
     }
   }
 
-  Future addSubjectDialog() async {
-    SubjectModel? subject;
-    final formKey = GlobalKey<FormState>();
-    return showDialog(
-      context: context,
-      barrierDismissible: false,
-      builder: (BuildContext ctx) {
-        final subjectNameList = subjects.map((e) => e.name).toList();
-        subjectNameList.sort();
-        return Dialog(
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(15),
-          ),
-          elevation: 30,
-          child: Form(
-            key: formKey,
-            child: Padding(
-              padding: const EdgeInsets.symmetric(
-                vertical: 40,
-                horizontal: 15,
-              ),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const Center(
-                    child: Text(
-                      'Select Subject',
-                      style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 17,
-                      ),
-                    ),
-                  ),
-                  const SizedBox(
-                    height: 20,
-                  ),
-                  const Text(
-                    "Select Subject",
-                    style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 13,
-                      color: MyColors.primayGreen,
-                    ),
-                  ),
-                  const SizedBox(
-                    height: 10,
-                  ),
-                  MyDropDown(
-                    items: subjectNameList
-                        .map(
-                          (e) => DropdownMenuItem<String>(
-                              value: e,
-                              child: Text(
-                                e,
-                                style: const TextStyle(
-                                  color: Colors.black,
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 16,
-                                ),
-                              )),
-                        )
-                        .toList(),
-                    onChanged: (value) {
-                      subject = subjects.firstWhere(
-                          (element) => element.name == value.toString());
-                    },
-                    hint: const Text('Select subject'),
-                    validator: (val) {
-                      if (val == null || val.toString().isEmpty) {
-                        return 'This field is mandatory';
-                      } else if (studentSubjects.contains(subject!)) {
-                        return 'This subject has already been added';
-                      }
-                      return null;
-                    },
-                  ),
-                  const SizedBox(
-                    height: 20,
-                  ),
-                  SubmitButton(
-                    isLoading: false,
-                    text: 'Cancel',
-                    onPressed: () {
-                      Navigator.of(ctx).pop();
-                    },
-                    color: Colors.red,
-                  ),
-                  const SizedBox(
-                    height: 10,
-                  ),
-                  SubmitButton(
-                    isLoading: false,
-                    text: 'Add',
-                    onPressed: () {
-                      final isValid = formKey.currentState!.validate();
-                      if (isValid) {
-                        setState(() {
-                          studentSubjects.add(subject!);
-                        });
-                        Navigator.of(ctx).pop();
-                      }
-                    },
-                  ),
-                ],
-              ),
-            ),
-          ),
-        );
-      },
-    );
-  }
+  // Future addSubjectDialog() async {
+  //   SubjectModel? subject;
+  //   final formKey = GlobalKey<FormState>();
+  //   return showDialog(
+  //     context: context,
+  //     barrierDismissible: false,
+  //     builder: (BuildContext ctx) {
+  //       final subjectNameList = subjects.map((e) => e.name).toList();
+  //       subjectNameList.sort();
+  //       return Dialog(
+  //         shape: RoundedRectangleBorder(
+  //           borderRadius: BorderRadius.circular(15),
+  //         ),
+  //         elevation: 30,
+  //         child: Form(
+  //           key: formKey,
+  //           child: Padding(
+  //             padding: const EdgeInsets.symmetric(
+  //               vertical: 40,
+  //               horizontal: 15,
+  //             ),
+  //             child: Column(
+  //               mainAxisSize: MainAxisSize.min,
+  //               crossAxisAlignment: CrossAxisAlignment.start,
+  //               children: [
+  //                 const Center(
+  //                   child: Text(
+  //                     'Select Subject',
+  //                     style: TextStyle(
+  //                       fontWeight: FontWeight.bold,
+  //                       fontSize: 17,
+  //                     ),
+  //                   ),
+  //                 ),
+  //                 const SizedBox(
+  //                   height: 20,
+  //                 ),
+  //                 const Text(
+  //                   "Select Subject",
+  //                   style: TextStyle(
+  //                     fontWeight: FontWeight.bold,
+  //                     fontSize: 13,
+  //                     color: MyColors.primayGreen,
+  //                   ),
+  //                 ),
+  //                 const SizedBox(
+  //                   height: 10,
+  //                 ),
+  //                 MyDropDown(
+  //                   items: subjectNameList
+  //                       .map(
+  //                         (e) => DropdownMenuItem<String>(
+  //                             value: e,
+  //                             child: Text(
+  //                               e,
+  //                               style: const TextStyle(
+  //                                 color: Colors.black,
+  //                                 fontWeight: FontWeight.bold,
+  //                                 fontSize: 16,
+  //                               ),
+  //                             )),
+  //                       )
+  //                       .toList(),
+  //                   onChanged: (value) {
+  //                     subject = subjects.firstWhere(
+  //                         (element) => element.name == value.toString());
+  //                   },
+  //                   hint: const Text('Select subject'),
+  //                   validator: (val) {
+  //                     if (val == null || val.toString().isEmpty) {
+  //                       return 'This field is mandatory';
+  //                     } else if (studentSubjects.contains(subject!)) {
+  //                       return 'This subject has already been added';
+  //                     }
+  //                     return null;
+  //                   },
+  //                 ),
+  //                 const SizedBox(
+  //                   height: 20,
+  //                 ),
+  //                 SubmitButton(
+  //                   isLoading: false,
+  //                   text: 'Cancel',
+  //                   onPressed: () {
+  //                     Navigator.of(ctx).pop();
+  //                   },
+  //                   color: Colors.red,
+  //                 ),
+  //                 const SizedBox(
+  //                   height: 10,
+  //                 ),
+  //                 SubmitButton(
+  //                   isLoading: false,
+  //                   text: 'Add',
+  //                   onPressed: () {
+  //                     final isValid = formKey.currentState!.validate();
+  //                     if (isValid) {
+  //                       setState(() {
+  //                         studentSubjects.add(subject!);
+  //                       });
+  //                       Navigator.of(ctx).pop();
+  //                     }
+  //                   },
+  //                 ),
+  //               ],
+  //             ),
+  //           ),
+  //         ),
+  //       );
+  //     },
+  //   );
+  // }
 
   @override
   Widget build(BuildContext context) {
@@ -393,6 +424,31 @@ class _AddStudentState extends State<AddStudentScreen> {
                           .toList(),
                       onChanged: (val) {
                         selectedClass = val as String;
+                        if (val == 'JSS1') {
+                          setState(() {
+                            _selectedClassToDetermineSubject = 1;
+                          });
+                        } else if (val == 'JSS2') {
+                          setState(() {
+                            _selectedClassToDetermineSubject = 2;
+                          });
+                        } else if (val == 'JSS3') {
+                          setState(() {
+                            _selectedClassToDetermineSubject = 3;
+                          });
+                        } else if (val == 'SSS1') {
+                          setState(() {
+                            _selectedClassToDetermineSubject = 4;
+                          });
+                        } else if (val == 'SSS2') {
+                          setState(() {
+                            _selectedClassToDetermineSubject = 5;
+                          });
+                        } else if (val == 'SSS3') {
+                          setState(() {
+                            _selectedClassToDetermineSubject = 6;
+                          });
+                        }
                       },
                       hint: const Text(
                         'Pick Class',
@@ -457,35 +513,6 @@ class _AddStudentState extends State<AddStudentScreen> {
                     const SizedBox(
                       height: 20,
                     ),
-                    const TextFieldTitle(title: 'Add Subjects'),
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                          vertical: 10, horizontal: 10),
-                      margin: const EdgeInsets.only(bottom: 15),
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(10),
-                        border: Border.all(
-                          color: MyColors.primayGreen,
-                        ),
-                      ),
-                      child: Wrap(
-                        alignment: WrapAlignment.start,
-                        runAlignment: WrapAlignment.spaceEvenly,
-                        children: studentSubjects
-                            .map((e) => OnlySubjectContainer(
-                                  subject: e,
-                                  onDelete: onDeleteClass,
-                                ))
-                            .toList(),
-                      ),
-                    ),
-                    TextButton(
-                      onPressed: () async {
-                        FocusScope.of(context).unfocus();
-                        await addSubjectDialog();
-                      },
-                      child: const Text('Add Subject & Class'),
-                    ),
                   ],
                 ),
               ),
@@ -501,86 +528,6 @@ class _AddStudentState extends State<AddStudentScreen> {
     );
   }
 }
-
-class TextFieldTitle extends StatelessWidget {
-  final String title;
-  const TextFieldTitle({required this.title, super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(mainAxisSize: MainAxisSize.min, children: [
-      Row(
-        children: [
-          Text(
-            title,
-            style: const TextStyle(
-              fontSize: 12,
-              fontWeight: FontWeight.w700,
-            ),
-          ),
-          const Spacer(),
-        ],
-      ),
-      const SizedBox(
-        height: 5,
-      )
-    ]);
-  }
-}
-
-class OnlySubjectContainer extends StatelessWidget {
-  final SubjectModel subject;
-  final Function onDelete;
-  const OnlySubjectContainer({
-    required this.subject,
-    required this.onDelete,
-    super.key,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(
-        horizontal: 10,
-      ),
-      margin: const EdgeInsets.all(5),
-      decoration: BoxDecoration(
-          border: Border.all(
-            color: Colors.grey,
-          ),
-          borderRadius: BorderRadius.circular(10)),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                subject.name,
-                style: const TextStyle(
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(
-            width: 15,
-          ),
-          IconButton(
-            onPressed: () {
-              onDelete(subject.id);
-            },
-            icon: const Icon(
-              Icons.cancel_outlined,
-              color: Colors.red,
-            ),
-          )
-        ],
-      ),
-    );
-  }
-}
-
 
 // SubjectModel(id: '', name: ''),
 List<SubjectModel> subjects = [
@@ -613,7 +560,8 @@ List<SubjectModel> subjects = [
   SubjectModel(id: 'YldABhSvh6pue50HEmvW', name: 'Literature In English'),
   SubjectModel(id: 'ZXPuQK1d136CMV7Ke1R2', name: 'Mathematics'),
   SubjectModel(id: 'edcFN7VutiT2lTRpNHb9', name: 'Chemistry'),
-  SubjectModel(id: 'fg7ogwovmrPS89HcUZuU', name: 'Catering Craft Practice (CCP)'),
+  SubjectModel(
+      id: 'fg7ogwovmrPS89HcUZuU', name: 'Catering Craft Practice (CCP)'),
   SubjectModel(id: 'g7vs6V6kxQo389xHmae5', name: 'BK'),
   SubjectModel(id: 'ghzPwbeFpHpUZolToTrs', name: 'Marketing'),
   SubjectModel(id: 'h6PcTwSyhXrgGJYnWM64', name: 'Typewriting'),
@@ -632,4 +580,31 @@ List<SubjectModel> subjects = [
   SubjectModel(id: 'yfexqkiOjWbe0jKeOBjV', name: 'Technical Drawing'),
 ];
 
-
+// Container(
+//   padding: const EdgeInsets.symmetric(
+//       vertical: 10, horizontal: 10),
+//   margin: const EdgeInsets.only(bottom: 15),
+//   decoration: BoxDecoration(
+//     borderRadius: BorderRadius.circular(10),
+//     border: Border.all(
+//       color: MyColors.primayGreen,
+//     ),
+//   ),
+//   child: Wrap(
+//     alignment: WrapAlignment.start,
+//     runAlignment: WrapAlignment.spaceEvenly,
+//     children: studentSubjects
+//         .map((e) => OnlySubjectContainer(
+//               subject: e,
+//               onDelete: onDeleteClass,
+//             ))
+//         .toList(),
+//   ),
+// ),
+// TextButton(
+//   onPressed: () async {
+//     FocusScope.of(context).unfocus();
+//     await addSubjectDialog();
+//   },
+//   child: const Text('Add Subject & Class'),
+// ),

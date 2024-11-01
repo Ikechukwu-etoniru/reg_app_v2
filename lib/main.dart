@@ -1,3 +1,4 @@
+import 'package:elevate_reg_app_2/screens/init_screen.dart';
 import 'package:elevate_reg_app_2/screens/login_screen.dart';
 import 'package:elevate_reg_app_2/screens/pick_school_screen.dart';
 import 'package:elevate_reg_app_2/utils/colors.dart';
@@ -75,7 +76,7 @@ class MyApp extends StatelessWidget {
         ),
       ),
       title: 'Elevate Parent',
-      home: const LoginScreen(),
+      home: const InitScreen(),
       routes: {
         LoginScreen.routeName: (ctx) => const LoginScreen(),
         PickSchoolScreen.routeName: (ctx) => const PickSchoolScreen(),
