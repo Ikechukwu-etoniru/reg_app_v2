@@ -25,6 +25,7 @@ class AddTeacherScreen extends StatefulWidget {
 class _AddTeacherScreenState extends State<AddTeacherScreen> {
   bool _isButtonLoading = false;
   final nameController = TextEditingController();
+  final contactController = TextEditingController();
 
   List<SubjectClass> teacherSubjects = [];
 
@@ -36,7 +37,7 @@ class _AddTeacherScreenState extends State<AddTeacherScreen> {
   Future addSubjectDialog() async {
     SubjectModel? subject;
     int? classId;
-    int? classNum;
+    List<int> classNum = [];
     final formKey = GlobalKey<FormState>();
     return showDialog(
       context: context,
@@ -183,7 +184,11 @@ class _AddTeacherScreenState extends State<AddTeacherScreen> {
                       itemBuilder: (context, index) {
                         return GestureDetector(
                           onTap: () {
-                            classNum = (index + 1);
+                            if (classNum.contains(index + 1)) {
+                              classNum.remove(index + 1);
+                            } else {
+                              classNum.add(index + 1);
+                            }
                           },
                           child: Container(
                             margin: const EdgeInsets.only(right: 5),
@@ -227,12 +232,13 @@ class _AddTeacherScreenState extends State<AddTeacherScreen> {
                       final isValid = formKey.currentState!.validate();
                       if (isValid) {
                         setState(() {
-                          teacherSubjects.add(SubjectClass(
-                            subject: subject!.id,
-                            name: subject!.name,
-                            classId: classId!,
-                            classNum: classNum!,
-                          ));
+                          for (var val in classNum) {
+                            teacherSubjects.add(SubjectClass(
+                                subject: subject!.id,
+                                name: subject!.name,
+                                classId: classId!,
+                                classNum: val));
+                          }
                         });
                         Navigator.of(ctx).pop();
                       }
@@ -275,6 +281,7 @@ class _AddTeacherScreenState extends State<AddTeacherScreen> {
         'schoolId': widget.school.id,
         'teacher_code': generateSixDigitNumber(),
         'subject_class_classnum': subjectClassList,
+        'contact': contactController.text,
       });
       // Get the generated document ID
       String docId = addedTeacher.id;
@@ -366,6 +373,30 @@ class _AddTeacherScreenState extends State<AddTeacherScreen> {
                       await addSubjectDialog();
                     },
                     child: const Text('Add Subject & Class'),
+                  ),
+                  const SizedBox(
+                    height: 20,
+                  ),
+                  const TextFieldTitle(title: 'Enter Teachers Contact'),
+                  TextFormField(
+                    controller: contactController,
+                    style: const TextStyle(
+                      fontSize: 13,
+                    ),
+                    decoration: const InputDecoration(
+                      hintText: 'Teacher\'s Contact',
+                      hintStyle: TextStyle(
+                        color: Colors.black26,
+                        fontWeight: FontWeight.w400,
+                        fontSize: 13,
+                      ),
+                      prefixIcon: Icon(
+                        Icons.person,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(
+                    height: 20,
                   ),
                 ],
               ),

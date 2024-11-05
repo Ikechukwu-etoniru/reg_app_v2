@@ -18,6 +18,7 @@ class UpdateSomeStudentsScreen extends StatefulWidget {
 
 class _UpdateSomeStudentsScreenState extends State<UpdateSomeStudentsScreen> {
   var _isScreenLoading = false;
+  var _isButtonLoading = false;
   List<StudentJ> studentsList = [];
   List<String> studentsInJss1AList = [];
 
@@ -67,18 +68,27 @@ class _UpdateSomeStudentsScreenState extends State<UpdateSomeStudentsScreen> {
 
   Future addStudentsToJss1A() async {
     final FirebaseFirestore firestore = FirebaseFirestore.instance;
+    setState(() {
+      _isButtonLoading = true;
+    });
 
     try {
       // Loop through each document ID in the list
       for (String docId in studentsInJss1AList) {
         // Update 'class_num' field to 1 for each document
         await firestore
-            .collection('subjects')
+            .collection('schools')
+            .doc(widget.school.id)
+            .collection('student')
             .doc(docId)
             .update({'class_num': 1});
       }
     } catch (e) {
       print("Error updating documents: $e");
+    } finally {
+      setState(() {
+        _isButtonLoading = false;
+      });
     }
   }
 
@@ -181,7 +191,7 @@ class _UpdateSomeStudentsScreenState extends State<UpdateSomeStudentsScreen> {
                         child: SubmitButton(
                           text: 'Change Student class',
                           onPressed: addStudentsToJss1A,
-                          isLoading: false,
+                          isLoading: _isButtonLoading,
                         ),
                       ),
                     ],
